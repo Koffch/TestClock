@@ -10,8 +10,8 @@ public class TimeSynchronizer : ITimeSynchronizer
 {
     private readonly Dictionary<string, string> _timeServers = new()
     {
-        ["yandex.com"] = "https://yandex.com/time/sync.json",
         ["worldtimeapi.org"] = "https://worldtimeapi.org/api/timezone/Etc/UTC",
+        ["yandex.com"] = "https://yandex.com/time/sync.json",
         ["timeapi.io"] = "https://timeapi.io/api/Time/current/zone?timeZone=UTC"
     };
 
@@ -48,14 +48,14 @@ public class TimeSynchronizer : ITimeSynchronizer
         {
             case 0:
             {
-                var timeData = JsonUtility.FromJson<YandexResponse>(response);
-                var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-                return dateTime.AddMilliseconds(timeData.time);
+                var timeData = JsonUtility.FromJson<WorldTimeApiResponse>(response);
+                return DateTime.Parse(timeData.utc_datetime);
             }
             case 1:
             {
-                var timeData = JsonUtility.FromJson<WorldTimeApiResponse>(response);
-                return DateTime.Parse(timeData.utc_datetime);
+                var timeData = JsonUtility.FromJson<YandexResponse>(response);
+                var dateTime = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+                return dateTime.AddMilliseconds(timeData.time);
             }
             case 2:
             {
@@ -69,16 +69,16 @@ public class TimeSynchronizer : ITimeSynchronizer
 
     [Serializable]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private class YandexResponse
+    private class WorldTimeApiResponse
     {
-        public long time;
+        public string utc_datetime;
     }
 
     [Serializable]
     [SuppressMessage("ReSharper", "InconsistentNaming")]
-    private class WorldTimeApiResponse
+    private class YandexResponse
     {
-        public string utc_datetime;
+        public long time;
     }
 
     [Serializable]
